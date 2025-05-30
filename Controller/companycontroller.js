@@ -1,8 +1,8 @@
-// server/controller/companycontroller.js
 const asyncHandler = require('express-async-handler');
 const Company = require('../Model/authschema');
 const Admin = require('../Model/adminModel');
 
+// Get all companies with pagination, filtering, and sorting
 const getCompanies = asyncHandler(async (req, res) => {
   let query;
   const reqQuery = { ...req.query };
@@ -43,6 +43,7 @@ const getCompanies = asyncHandler(async (req, res) => {
   });
 });
 
+// Get a single company by ID
 const getCompany = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id).populate('admins', 'name email role');
   if (!company) {
@@ -52,11 +53,13 @@ const getCompany = asyncHandler(async (req, res) => {
   res.json({ success: true, data: company });
 });
 
+// Create a new company
 const createCompany = asyncHandler(async (req, res) => {
   const company = await Company.create({ ...req.body, status: 'pending' });
   res.status(201).json({ success: true, data: company });
 });
 
+// Update a company by ID
 const updateCompany = asyncHandler(async (req, res) => {
   let company = await Company.findById(req.params.id);
   if (!company) {
@@ -70,6 +73,7 @@ const updateCompany = asyncHandler(async (req, res) => {
   res.json({ success: true, data: company });
 });
 
+// Change company status
 const changeCompanyStatus = asyncHandler(async (req, res) => {
   const { status } = req.body;
   if (!status || !['pending', 'approved', 'rejected', 'blocked'].includes(status)) {
@@ -89,6 +93,7 @@ const changeCompanyStatus = asyncHandler(async (req, res) => {
   res.json({ success: true, data: company });
 });
 
+// Delete a company and associated admins
 const deleteCompany = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id);
   if (!company) {
@@ -96,10 +101,11 @@ const deleteCompany = asyncHandler(async (req, res) => {
     throw new Error(`Company not found with id of ${req.params.id}`);
   }
   await Admin.deleteMany({ companyId: company._id });
-  await company.remove();
+  await Company.deleteOne({ _id: company._id }); // Use deleteOne instead of remove
   res.json({ success: true, data: {} });
 });
 
+// Assign an admin to a company
 const assignAdmin = asyncHandler(async (req, res) => {
   const { adminId } = req.body;
   if (!adminId) {
@@ -127,34 +133,23 @@ const assignAdmin = asyncHandler(async (req, res) => {
   res.json({ success: true, data: company });
 });
 
+// Get dashboard analytics data
 const getDashboardStats = asyncHandler(async (req, res) => {
   try {
-    // Aggregate company stats
+    // Company stats
     const totalCompanies = await Company.countDocuments();
     const companiesByStatus = await Company.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
+      { $group: { _id: '$status', count: { $sum: 1 } } }
     ]).then(results => {
       const statusMap = { pending: 0, approved: 0, rejected: 0, blocked: 0 };
-      results.forEach(result => {
-        statusMap[result._id] = result.count;
-      });
+      results.forEach(result => { statusMap[result._id] = result.count; });
       return statusMap;
     });
 
-    // Aggregate admin stats
+    // Admin stats (mapped to userStats)
     const totalAdmins = await Admin.countDocuments();
     const adminsByRole = await Admin.aggregate([
-      {
-        $group: {
-          _id: '$role',
-          count: { $sum: 1 }
-        }
-      }
+      { $group: { _id: '$role', count: { $sum: 1 } } }
     ]).then(results => {
       const roleMap = { superAdmins: 0, companyAdmins: 0 };
       results.forEach(result => {
@@ -163,40 +158,68 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       return roleMap;
     });
 
-    // Calculate new companies (e.g., last 30 days)
+    // New registrations in the last 30 days
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const newCompanies = await Company.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
+    const newAdmins = await Admin.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
 
     // Monthly registrations (last 12 months)
     const monthlyRegistrations = await Company.aggregate([
-      {
-        $match: { createdAt: { $gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) } }
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
-          count: { $sum: 1 }
-        }
-      },
+      { $match: { createdAt: { $gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
       { $sort: { '_id': 1 } }
-    ]).then(results => results.map(result => ({
-      month: result._id,
-      count: result.count
-    })));
+    ]).then(results => results.map(result => ({ month: result._id, count: result.count })));
 
-    // Total employees (assuming no Employee model is provided, set to 0)
-    const totalEmployees = 0; // Update if you have an Employee model
+    const monthlyAdminRegistrations = await Admin.aggregate([
+      { $match: { createdAt: { $gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+      { $sort: { '_id': 1 } }
+    ]).then(results => results.map(result => ({ month: result._id, count: result.count })));
+
+    // Generate monthly data for charts
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - 11 + i);
+      return date.toISOString().slice(0, 7); // Format: YYYY-MM
+    });
+    const monthlyData = {
+      labels: months,
+      companies: months.map(month => {
+        const found = monthlyRegistrations.find(item => item.month === month);
+        return found ? found.count : 0;
+      }),
+      users: months.map(month => {
+        const found = monthlyAdminRegistrations.find(item => item.month === month);
+        return found ? found.count : 0;
+      }),
+      revenue: months.map(() => 0) // Placeholder, update if revenue model exists
+    };
+
+    // Placeholder revenue stats
+    const revenueStats = {
+      total: 0,
+      thisMonth: 0,
+      lastMonth: 0,
+      growth: 0
+    };
 
     res.json({
       success: true,
       data: {
-        totalCompanies,
-        companiesByStatus,
-        totalAdmins,
-        adminsByRole,
-        totalEmployees,
-        newCompanies,
-        monthlyRegistrations
+        userStats: {
+          total: totalAdmins,
+          active: adminsByRole.companyAdmins,
+          inactive: adminsByRole.superAdmins,
+          newThisMonth: newAdmins
+        },
+        companyStats: {
+          total: totalCompanies,
+          active: companiesByStatus.approved,
+          pending: companiesByStatus.pending,
+          blocked: companiesByStatus.blocked
+        },
+        revenueStats,
+        monthlyData
       }
     });
   } catch (error) {
