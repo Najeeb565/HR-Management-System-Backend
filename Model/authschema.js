@@ -12,6 +12,13 @@ const companySchema = new mongoose.Schema({
   state: { type: String, required: true },
   zip: { type: String, required: true },
   country: { type: String, required: true },
+   status: { 
+    type: String, 
+    required: true, 
+    enum: ['pending', 'approved', 'rejected', 'blocked'], 
+    default: 'pending' 
+  },
+  admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Company", companySchema);

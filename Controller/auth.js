@@ -1,5 +1,6 @@
 // Controller/auth.js
 const Company = require('../Model/authschema');
+const Admin = require('../Model/adminModel');
 
 const allowedRoles = ['admin', 'employee'];
 
