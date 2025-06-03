@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -7,7 +6,8 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./Routes/authroutes');
 const companyController = require('./Controller/companycontroller'); 
-const superAdminRoutes = require('./routes/superAdmin'); 
+const settingController = require('./Controller/settingController');
+const superAdminRoutes = require('./routes/superAdmin');
 const { registerCompany } = require('./Controller/auth');
 
 const app = express();
@@ -31,6 +31,10 @@ const startServer = async () => {
   app.get('/api/dashboard', companyController.getDashboardStats);
   app.put('/api/companies/:id/status', companyController.changeCompanyStatus);
   app.post('/api/companies', registerCompany);
+  
+  // Settings routes
+  app.get('/api/settings', settingController.getSettings);
+  app.put('/api/settings', settingController.updateSettings);
 
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
