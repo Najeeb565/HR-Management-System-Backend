@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./Routes/authroutes');
 const { registerCompany } = require('./Controller/auth'); // Register company route
-const superadmin = require('./Routes/superadminroutes'); // Superadmin routes
+const superadmin = require('./Routes/superadminloginroutes'); // Superadmin routes
 const app = express();
 const PORT = 5000;
 
