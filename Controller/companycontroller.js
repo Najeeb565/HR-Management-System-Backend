@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Company = require('../Model/authschema');
 const Admin = require('../Model/adminModel');
+const bcrypt = require('bcryptjs');
 
 // Get all companies with pagination, filtering, and sorting
 const getCompanies = asyncHandler(async (req, res) => {
@@ -43,6 +44,19 @@ const getCompanies = asyncHandler(async (req, res) => {
   });
 });
 
+// Get only company status by ID
+const getCompanyStatus = asyncHandler(async (req, res) => {
+  const company = await Company.findById(req.params.id).select('status');
+  // console.log("Params:", req.params);
+
+  if (!company) {
+    res.status(404);
+    throw new Error(`Company not found with id of ${req.params.id}`);
+  }
+  res.json({ success: true, status: company.status });
+});
+
+
 // Get a single company by ID
 const getCompany = asyncHandler(async (req, res) => {
   const company = await Company.findById(req.params.id).populate('admins', 'name email role');
@@ -56,7 +70,11 @@ const getCompany = asyncHandler(async (req, res) => {
 // Create a new company
 const createCompany = asyncHandler(async (req, res) => {
   const company = await Company.create({ ...req.body, status: 'pending' });
-  res.status(201).json({ success: true, data: company });
+  res.status(201).json({
+  success: true,
+  message: "Company registered successfully",
+  companyId: company._id 
+});
 });
 
 // Update a company by ID
@@ -228,13 +246,58 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+// Set a new admin for a company
+const setCompanyAdmin = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+    const companyId = req.params.companyId;
+  console.log('Company ID:', companyId); 
+
+  // Check if company exists
+  const company = await Company.findById(companyId);
+  if (!company) {
+    res.status(404);
+    throw new Error("Company not found");
+  }
+
+  // Check if email already exists
+  const existingAdmin = await Admin.findOne({ email });
+  if (existingAdmin) {
+    res.status(400);
+    throw new Error("Admin with this email already exists");
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create new admin
+  const newAdmin = await Admin.create({
+    name,
+    email,
+    password: hashedPassword,
+    role: 'companyAdmin',
+    companyId
+  });
+
+  // Add admin to company
+  company.admins.push(newAdmin._id);
+  await company.save();
+
+  res.status(201).json({ message: 'Company admin created successfully' });
+});
+
+
+
 module.exports = {
   getCompanies,
   getCompany,
+  getCompanyStatus,
   createCompany,
   updateCompany,
   changeCompanyStatus,
   deleteCompany,
   assignAdmin,
-  getDashboardStats
+  getDashboardStats,
+  setCompanyAdmin
 };
