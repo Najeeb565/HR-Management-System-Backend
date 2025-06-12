@@ -25,9 +25,7 @@ router.put('/:id', updateCompany);
 router.put('/:id/status', changeCompanyStatus);
 
 // ✅ Set company admin
-router.post('/set-admin/:companyId', (req, res, next) => {
-  console.log("✅ Set admin route hit");
-  next();
-}, setCompanyAdmin);
+
+router.post('/set-admin/:companyId', setCompanyAdmin);
 
 module.exports = router;

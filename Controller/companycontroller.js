@@ -246,46 +246,54 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-// Set a new admin for a company
+//  Set a new admin for a company
 const setCompanyAdmin = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-    const companyId = req.params.companyId;
-  console.log('Company ID:', companyId); 
+  const { companyId } = req.params;
 
-  // Check if company exists
+  console.log('Company ID:', companyId);
+
+  //  Check if company exists
   const company = await Company.findById(companyId);
   if (!company) {
-    res.status(404);
-    throw new Error("Company not found");
+    return res.status(404).json({ message: 'Company not found' });
   }
 
-  // Check if email already exists
-  const existingAdmin = await Admin.findOne({ email });
+  //  Check if an admin with this email already exists for the same company
+  const existingAdmin = await Admin.findOne({ email, companyId });
   if (existingAdmin) {
-    res.status(400);
-    throw new Error("Admin with this email already exists");
+    return res.status(400).json({ message: 'Admin with this email already exists for this company' });
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    //  Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create new admin
-  const newAdmin = await Admin.create({
-    name,
-    email,
-    password: hashedPassword,
-    role: 'companyAdmin',
-    companyId
-  });
+    //  Create new admin
+    const newAdmin = await Admin.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'companyAdmin',
+      companyId,
+    });
 
-  // Add admin to company
-  company.admins.push(newAdmin._id);
-  await company.save();
+    //  Add admin to company's admin list
+    company.admins.push(newAdmin._id);
+    await company.save();
 
-  res.status(201).json({ message: 'Company admin created successfully' });
+    res.status(201).json({ message: 'Company admin created successfully' });
+
+  } catch (err) {
+    //  Handle duplicate email error from MongoDB
+    if (err.code === 11000 && err.keyPattern?.email) {
+      return res.status(400).json({ message: 'This email is already in use.' });
+    }
+    console.error('Error in setCompanyAdmin:', err);
+    res.status(500).json({ message: 'Something went wrong on the server.' });
+  }
 });
+
 
 
 

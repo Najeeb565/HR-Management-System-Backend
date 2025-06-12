@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
-const connectDB = require('./config/db'); // MongoDB connection
+const connectDB = require('./config/db'); 
 const authRoutes = require('./Routes/authroutes');
 const companyController = require('./Controller/companycontroller'); 
 const settingController = require('./Controller/settingController');
@@ -39,13 +39,10 @@ const startServer = async () => {
   app.put('/api/settings', settingController.updateSettings);
 
 
-  app.use((req, res, next) => {
-  console.log(`📥 ${req.method} ${req.originalUrl}`);
-  next();
-});
+
 
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(` Server running on http://localhost:${PORT}`);
   });
 };
 
