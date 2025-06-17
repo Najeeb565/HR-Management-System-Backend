@@ -41,18 +41,19 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(payload, "secretKey", { expiresIn: "1d" });
 
-    res.status(200).json({
-      message: `Login successful as ${role}`,
-      success: true,
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        companyName: user.companyId?.companyName  || "", 
-      }
-    });
+   res.status(200).json({
+  message: `Login successful as ${role}`,
+  success: true,
+  token,
+  user: {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    companyName: user.companyId?.companyName || "",
+    companyId: user.companyId?._id || user.companyId || "",  // ✅ This line is important
+  }
+});
 
   } catch (error) {
     console.error("Login error:", error);
