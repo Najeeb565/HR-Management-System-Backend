@@ -10,6 +10,8 @@ const settingController = require('./Controller/settingController');
 const superAdminRoutes = require('./routes/superAdmin');
 const { registerCompany } = require('./Controller/auth');
 const companyRoutes = require('./routes/companyroutes');
+const taskRoutes = require('./Routes/taskroutes');
+
 
 const app = express();
 const PORT = 5000;
@@ -33,6 +35,7 @@ const startServer = async () => {
   app.put('/api/companies/:id/status', companyController.changeCompanyStatus);
   app.post('/api/companies', registerCompany);
   app.use('/api/companies', companyRoutes); 
+  app.use('/api', taskRoutes);
   
   // Settings routes
   app.get('/api/settings', settingController.getSettings);
