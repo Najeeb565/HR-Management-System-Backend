@@ -47,11 +47,11 @@ const loginUser = async (req, res) => {
   token,
   user: {
     _id: user._id,
-    name: user.name,
+    name: user.name, 
     email: user.email,
     role: user.role,
     companyName: user.companyId?.companyName || "",
-    companyId: user.companyId?._id || user.companyId || "",  // ✅ This line is important
+    companyId: user.companyId?._id || user.companyId || "", 
   }
 });
 
