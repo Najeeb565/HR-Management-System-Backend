@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+require('./authschema');
 
 const adminSchema = new mongoose.Schema({
   name: { type: String, required: true },
