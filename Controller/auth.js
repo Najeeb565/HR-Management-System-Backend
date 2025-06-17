@@ -19,7 +19,8 @@ const loginUser = async (req, res) => {
     let user;
 
     if (role === 'admin') {
-      user = await Admin.findOne({ email });
+      user = await Admin.findOne({ email }).populate('companyId'); // ✅ get company data
+      // console.log("Populated company:", user.companyId);
     } else if (role === 'employee') {
       user = await Employee.findOne({ email });
     }
@@ -32,32 +33,34 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password', success: false });
     }
+
     const payload = {
       userId: user._id,
       role: user.role,
     };
-    
-    // Create token
+
     const token = jwt.sign(payload, "secretKey", { expiresIn: "1d" });
 
-
-    res.status(200).json({
-      message: `Login successful as ${role}`,
-      success: true,
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+   res.status(200).json({
+  message: `Login successful as ${role}`,
+  success: true,
+  token,
+  user: {
+    _id: user._id,
+    name: user.name, 
+    email: user.email,
+    role: user.role,
+    companyName: user.companyId?.companyName || "",
+    companyId: user.companyId?._id || user.companyId || "", 
+  }
+});
 
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: 'Server error', success: false });
   }
 };
+
 
 const registerCompany = async (req, res) => {
   try {
