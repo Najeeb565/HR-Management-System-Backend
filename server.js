@@ -34,7 +34,8 @@ const startServer = async () => {
   app.put('/api/companies/:id/status', companyController.changeCompanyStatus);
   app.post('/api/companies', registerCompany);
   app.use('/api/companies', companyRoutes); 
-  // app.use('/api', employeesRouter);
+  app.use('/api', employeesRouter);
+  // app.use('', employeeRouter);
   
   // Settings routes
   app.get('/api/settings', settingController.getSettings);
