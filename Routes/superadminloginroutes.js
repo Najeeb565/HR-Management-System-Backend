@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register } = require('../Controller/superadmincontroller');
+const { register } = require('../Controller/superadminlogincontroller');
 
 router.post('/register', register);
 
