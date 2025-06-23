@@ -11,6 +11,8 @@ const superAdminRoutes = require('./routes/superAdmin');
 const { registerCompany } = require('./Controller/auth');
 const companyRoutes = require('./routes/companyroutes');
 const employeesRouter = require("./Routes/employeeRoutes");
+const adminRoutes = require('./Routes/adminroutes');
+
 
 const app = express();
 const PORT = 5000;
@@ -19,8 +21,10 @@ dotenv.config();
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(express.json());
+
+// ✅ Only keep one set of body parsers, with limits
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Connect to MongoDB and start server
 const startServer = async () => {
@@ -36,10 +40,12 @@ const startServer = async () => {
   app.use('/api/companies', companyRoutes); 
   app.use('/api', employeesRouter);
   // app.use('', employeeRouter);
-  
+  app.use('/api/admin', adminRoutes);
+
   // Settings routes
   app.get('/api/settings', settingController.getSettings);
   app.put('/api/settings', settingController.updateSettings);
+
 
 
 
