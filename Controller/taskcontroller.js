@@ -1,37 +1,63 @@
 const Task = require('../Model/taskmodel');
 
-// POST: Create a new task
+// Create Task
 const createTask = async (req, res) => {
   try {
-    const { email, taskTitle, description } = req.body;
-    const task = new Task({ email, taskTitle, description, status: 'pending' });
-    const savedTask = await task.save();
+    const newTask = new Task(req.body);
+    const savedTask = await newTask.save();
     res.status(201).json(savedTask);
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error' });
+  } catch (error) {
+    console.error("Error creating task:", error.message);
+    res.status(500).json({ message: "Server error while creating task" });
   }
 };
 
-// GET: Get all tasks
-const getAllTasks = async (req, res) => {
+// Get All Tasks
+const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const tasks = await Task.find().sort({ createdAt: -1 });
     res.status(200).json(tasks);
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error' });
+  } catch (error) {
+    console.error("Error getting tasks:", error.message);
+    res.status(500).json({ message: "Server error while fetching tasks" });
   }
 };
 
-// DELETE: Delete a task
+// Update Task
+const updateTask = async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      console.log(`Task not found: ${req.params.id}`);
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    console.error("Error updating task:", error.message);
+    res.status(500).json({ message: "Server error while updating task" });
+  }
+};
+
+// Delete Task
 const deleteTask = async (req, res) => {
   try {
-    const deleted = await Task.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Task not found' });
-    res.status(200).json({ message: 'Deleted' });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    const deletedTask = await Task.findByIdAndDelete(req.params.id);
+    if (!deletedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting task:", error.message);
+    res.status(500).json({ message: "Server error while deleting task" });
   }
 };
 
-
-module.exports = { createTask, getAllTasks, deleteTask };
+module.exports = {
+  createTask,
+  getTasks,
+  updateTask,
+  deleteTask,
+};

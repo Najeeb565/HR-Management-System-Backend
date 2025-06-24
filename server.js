@@ -50,8 +50,15 @@ const startServer = async () => {
 
 
 
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal server error' });
+});
 
-
+// Connect to MongoDB and start server
+const startServer = async () => {
+  await connectDB();
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
