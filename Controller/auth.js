@@ -36,7 +36,10 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password', success: false });
     }
-   
+//    if (password !== user.password) {
+//   return res.status(401).json({ message: 'Incorrect password', success: false });
+// }
+
 
     const payload = {
       userId: user._id,
