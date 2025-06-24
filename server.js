@@ -17,6 +17,9 @@ const app = express();
 const PORT = 5000;
 
 dotenv.config();
+console.log('📦 ENV Email:', process.env.EMAIL_USER);
+console.log('🔑 ENV Pass:', process.env.EMAIL_PASS);
+
 
 // Middleware
 app.use(cors());

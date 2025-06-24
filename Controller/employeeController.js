@@ -1,6 +1,7 @@
 
 const Employee = require('../Model/employee');
 const sendEmail = require('../utils/sendEmail');
+const bcrypt = require('bcryptjs');
 
 // ✅ Get all employees
 exports.getAllEmployees = async (req, res) => {
@@ -35,22 +36,7 @@ const generateOTP = () => {
 
 
 const generateRandomPassword = () => {
-  const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  let password = '';
-
-  // Add 4 random letters
-  for (let i = 0; i < 4; i++) {
-    password += letters.charAt(Math.floor(Math.random() * letters.length));
-  }
-
-  // Add 4 random numbers
-  for (let i = 0; i < 4; i++) {
-    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  }
-
-  // Shuffle the characters (mix letters & numbers)
-  return password.split('').sort(() => 0.5 - Math.random()).join('');
+  return Math.random().toString(36).slice(-8); // e.g. 'x9v4k7qz'
 };
 
 
@@ -66,7 +52,8 @@ exports.createEmployee = async (req, res) => {
     }
 
     const employeeId = 'EMP' + Date.now();
-    const password = generateRandomPassword(); // 👈 New password
+    const password = generateRandomPassword(); 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newEmployee = new Employee({
       firstName,
@@ -80,7 +67,7 @@ exports.createEmployee = async (req, res) => {
       joiningDate,
       companyId,
       employeeId,
-      password, // 👈 Save to DB
+      password : hashedPassword, 
     });
 
     await newEmployee.save();
