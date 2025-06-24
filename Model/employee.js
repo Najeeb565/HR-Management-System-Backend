@@ -17,6 +17,7 @@ const employeeSchema = new mongoose.Schema(
       enum: ['IT', 'HR', 'Finance', 'Marketing', 'Sales', 'Operations', 'Admin'],
     },
     salary: { type: Number, required: true, min: 0 },
+    password: { type: String },
     status: {
       type: String,
       enum: ['Active', 'Inactive', 'Terminated'],
@@ -24,8 +25,9 @@ const employeeSchema = new mongoose.Schema(
     },
     joiningDate: { type: Date, required: true },
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
-   
+
     profilePicture: { type: String, trim: true },
+    
   },
   { timestamps: true }
 );

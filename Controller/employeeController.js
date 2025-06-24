@@ -1,71 +1,6 @@
-// const Employee = require('../Model/employee');
-
-// exports.getAllEmployees = async (req, res) => {
-//   try {
-//     const employees = await Employee.find();
-//     res.status(200).json(employees);
-//   } catch (error) {
-//     console.error('Error fetching employees>', error);
-//     res.status(500).json({ message:'Server Error!', error: error.message });
-//   }
-// };
-
-
-
-// exports.createEmployee = async (req, res) => {
-//   try {
-//     const { firstName, lastName, email, phone, role, department, salary, status, joiningDate, companyId } = req.body;
-
-//     if (!companyId) {
-//       return res.status(400).json({ message: 'CompanyId is required!' });
-//     }
-
-//     // ✅ Auto-generate employeeId (simple example, you can improve it)
-//     const employeeId = 'EMP' + Date.now();
-
-//     const newEmployee = new Employee({
-//       firstName,
-//       lastName,
-//       email,
-//       phone,
-//       role,
-//       department,
-//       salary,
-//       status,
-//       joiningDate,
-//       companyId,
-//       employeeId, // ✅ Add this
-//     });
-
-//     await newEmployee.save();
-
-//     res.status(201).json({ message: 'Employee successfully created!', employee: newEmployee });
-
-//   } catch (error) {
-//     console.error('Error creating employee>', error);
-//     res.status(500).json({ message: 'Server Error!', error: error.message });
-//   }
-// };
-
-
-
-
-// exports.deleteEmployee = async (req, res) => {
-//   try {
-//     const employeeId = req.params.id;
-//     await Employee.findByIdAndDelete(employeeId);
-//     res.status(200).json({ message: 'Employee deleted successfully!' });
-//   } catch (error) {
-//     console.error('Error deleting employee>', error);
-//     res.status(500).json({ message: 'Server Error!', error: error.message });
-//   }
-// };  
-
-
-
-
 
 const Employee = require('../Model/employee');
+const sendEmail = require('../utils/sendEmail');
 
 // ✅ Get all employees
 exports.getAllEmployees = async (req, res) => {
@@ -93,16 +28,45 @@ exports.getEmployeeById = async (req, res) => {
   }
 };
 
-// ✅ Create a new employee
+
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+
+const generateRandomPassword = () => {
+  const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  let password = '';
+
+  // Add 4 random letters
+  for (let i = 0; i < 4; i++) {
+    password += letters.charAt(Math.floor(Math.random() * letters.length));
+  }
+
+  // Add 4 random numbers
+  for (let i = 0; i < 4; i++) {
+    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+
+  // Shuffle the characters (mix letters & numbers)
+  return password.split('').sort(() => 0.5 - Math.random()).join('');
+};
+
+
 exports.createEmployee = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, role, department, salary, status, joiningDate, companyId } = req.body;
+    const {
+      firstName, lastName, email, phone, role,
+      department, salary, status, joiningDate, companyId
+    } = req.body;
 
     if (!companyId) {
       return res.status(400).json({ message: 'CompanyId is required!' });
     }
 
     const employeeId = 'EMP' + Date.now();
+    const password = generateRandomPassword(); // 👈 New password
 
     const newEmployee = new Employee({
       firstName,
@@ -116,17 +80,31 @@ exports.createEmployee = async (req, res) => {
       joiningDate,
       companyId,
       employeeId,
+      password, // 👈 Save to DB
     });
 
     await newEmployee.save();
 
-    res.status(201).json({ message: 'Employee successfully created!', employee: newEmployee });
+    const subject = 'Your Account Password';
+    const text = `Dear ${firstName},\n\nYour account has been created.\nYour login password is: ${password}\n\nPlease login and change your password.\n\nRegards,\nHR Team`;
+
+    await sendEmail(email, subject, text);
+
+    res.status(201).json({
+      message: 'Employee created & password sent via email!',
+      employee: newEmployee,
+    });
 
   } catch (error) {
     console.error('Error creating employee>', error);
     res.status(500).json({ message: 'Server Error!', error: error.message });
   }
 };
+
+
+
+
+
 
 // ✅ Update an existing employee
 exports.updateEmployee = async (req, res) => {
