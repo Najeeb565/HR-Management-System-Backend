@@ -113,8 +113,8 @@ exports.updateEmployee = async (req, res) => {
     const updateData = req.body;
 
     const updatedEmployee = await Employee.findByIdAndUpdate(employeeId, updateData, {
-      new: true, // return updated document
-      runValidators: true, // ensure schema validations run
+      new: true, 
+      runValidators: true,
     });
 
     if (!updatedEmployee) {
