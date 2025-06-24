@@ -9,8 +9,9 @@ const settingController = require('./Controller/settingController');
 const superAdminRoutes = require('./routes/superAdmin');
 const { registerCompany } = require('./Controller/auth');
 const companyRoutes = require('./routes/companyroutes');
-const employeesRouter = require('./Routes/employeeRoutes');
-const taskRoutes = require('./Routes/taskroutes');
+const employeesRouter = require("./Routes/employeeRoutes");
+const adminRoutes = require('./Routes/adminroutes');
+
 
 const app = express();
 const PORT = 5000;
@@ -20,8 +21,11 @@ dotenv.config();
 console.log('Loading employeesRouter:', employeesRouter);
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173' }));
-app.use(express.json());
+app.use(cors());
+
+// ✅ Only keep one set of body parsers, with limits
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Connect to MongoDB and start server
 const startServer = async () => {
@@ -34,22 +38,18 @@ const startServer = async () => {
   app.get('/api/dashboard', companyController.getDashboardStats);
   app.put('/api/companies/:id/status', companyController.changeCompanyStatus);
   app.post('/api/companies', registerCompany);
-  app.use('/api/companies', companyRoutes);
-  app.use('/api/employees', employeesRouter);
-  // app.use('/api, taskRoutes');
-  app.use('/api', taskRoutes);
-
-
+  app.use('/api/companies', companyRoutes); 
+  app.use('/api', employeesRouter);
+  // app.use('', employeeRouter);
+  app.use('/api/admin', adminRoutes);
 
   // Settings routes
   app.get('/api/settings', settingController.getSettings);
   app.put('/api/settings', settingController.updateSettings);
 
-  // Catch-all for unmatched routes
-  app.use((req, res) => {
-    console.log(`Unmatched route: ${req.method} ${req.url}`);
-    res.status(404).json({ message: 'Route not found' });
-  });
+
+
+
 
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
