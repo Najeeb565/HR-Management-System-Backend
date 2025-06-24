@@ -11,6 +11,8 @@ const allowedRoles = ['admin', 'employee'];
 const loginUser = async (req, res) => {
   const { email, password, role } = req.body;
 
+
+
   if (!email || !password || !allowedRoles.includes(role)) {
     return res.status(400).json({ message: 'Invalid credentials', success: false });
   }
@@ -19,11 +21,12 @@ const loginUser = async (req, res) => {
     let user;
 
     if (role === 'admin') {
-      user = await Admin.findOne({ email }).populate('companyId'); // ✅ get company data
+      user = await Admin.findOne({ email }).populate('companyId'); 
       // console.log("Populated company:", user.companyId);
     } else if (role === 'employee') {
       user = await Employee.findOne({ email });
     }
+      
 
     if (!user) {
       return res.status(401).json({ message: 'User not found', success: false });
@@ -33,6 +36,7 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password', success: false });
     }
+   
 
     const payload = {
       userId: user._id,
