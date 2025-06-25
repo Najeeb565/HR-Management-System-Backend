@@ -5,9 +5,6 @@ const employeeController = require('../Controller/employeeController');
 // Check if controller is loading properly
 console.log('employeeController loaded?', employeeController);
 
-// ✅ Static or special routes should be defined first (like stats)
-// router.get("/stats", employeeController.getStats); // 👈 example
-
 // ✅ GET all employees
 router.get("/", employeeController.getAllEmployees);
 
