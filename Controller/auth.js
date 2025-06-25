@@ -24,7 +24,7 @@ const loginUser = async (req, res) => {
       user = await Admin.findOne({ email }).populate('companyId'); 
       // console.log("Populated company:", user.companyId);
     } else if (role === 'employee') {
-      user = await Employee.findOne({ email });
+      user = await Employee.findOne({ email }).populate('companyId');
     }
       
 
@@ -54,9 +54,9 @@ const loginUser = async (req, res) => {
   token,
   user: {
     _id: user._id,
-    name: user.name, 
     email: user.email,
-    role: user.role,
+    name: user.firstName || user.name,
+    role: user.role.toLowerCase(),
     companyName: user.companyId?.companyName || "",
     companyId: user.companyId?._id || user.companyId || "", 
   }
