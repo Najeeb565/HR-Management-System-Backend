@@ -4,7 +4,7 @@ const router = express.Router();
 const employeeController = require('../Controller/employeeController');
 
 // Check if controller is loading properly
-console.log('employeeController loaded?', employeeController);
+// console.log('employeeController loaded?', employeeController);
 
 // ✅ GET all employees
 router.get("/", employeeController.getAllEmployees);
