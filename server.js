@@ -18,9 +18,6 @@ const app = express();
 const PORT = 5000;
 
 dotenv.config();
-console.log('📦 ENV Email:', process.env.EMAIL_USER);
-console.log('🔑 ENV Pass:', process.env.EMAIL_PASS);
-
 
 // Middleware
 app.use(cors());
@@ -56,7 +53,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 };
 
