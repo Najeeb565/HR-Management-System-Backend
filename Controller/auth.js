@@ -24,7 +24,7 @@ const loginUser = async (req, res) => {
       user = await Admin.findOne({ email }).populate('companyId'); 
       // console.log("Populated company:", user.companyId);
     } else if (role === 'employee') {
-      user = await Employee.findOne({ email }).populate(`companyId`);
+      user = await Employee.findOne({ email }).populate('companyId');
     }
       
 
@@ -36,7 +36,10 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password', success: false });
     }
-   
+//    if (password !== user.password) {
+//   return res.status(401).json({ message: 'Incorrect password', success: false });
+// }
+
 
     const payload = {
       userId: user._id,
@@ -52,9 +55,9 @@ const loginUser = async (req, res) => {
   token,
   user: {
     _id: user._id,
-    name: user.name, 
     email: user.email,
-    role: user.role,
+    name: user.firstName || user.name,
+    role: user.role.toLowerCase(),
     companyName: user.companyId?.companyName || "",
     companyId: user.companyId?._id || user.companyId || "", 
   }

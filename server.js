@@ -12,6 +12,7 @@ const adminRoutes = require('./Routes/adminroutes');
 const companyController = require('./Controller/companycontroller');
 const settingController = require('./Controller/settingController');
 const { registerCompany } = require('./Controller/auth');
+const taskRoutes = require('./Routes/taskroutes');
 
 const app = express();
 const PORT = 5000;
@@ -29,6 +30,8 @@ app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/employees', employeesRouter);
 app.use('/api/admin', adminRoutes);
+
+app.use('/api/tasks', taskRoutes);
 
 // Company Controller Routes
 app.get('/api/companies', companyController.getCompanies);
@@ -50,7 +53,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 };
 
