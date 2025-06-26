@@ -13,7 +13,6 @@ const companyController = require('./Controller/companycontroller');
 const settingController = require('./Controller/settingController');
 const { registerCompany } = require('./Controller/auth');
 const taskRoutes = require('./Routes/taskroutes');
-
 const app = express();
 const PORT = 5000;
 

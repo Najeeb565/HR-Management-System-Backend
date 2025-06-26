@@ -15,13 +15,17 @@ const createTask = async (req, res) => {
 // Get All Tasks
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 });
+    const { email } = req.query;
+
+
+    const tasks = await Task.find({ assignedTo: email }).sort({ createdAt: -1 });
     res.status(200).json(tasks);
   } catch (error) {
     console.error("Error getting tasks:", error.message);
     res.status(500).json({ message: "Server error while fetching tasks" });
   }
 };
+
 
 // Update Task
 const updateTask = async (req, res) => {
