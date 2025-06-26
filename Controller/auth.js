@@ -24,7 +24,7 @@ const loginUser = async (req, res) => {
       user = await Admin.findOne({ email }).populate('companyId'); 
       // console.log("Populated company:", user.companyId);
     } else if (role === 'employee') {
-      user = await Employee.findOne({ email });
+      user = await Employee.findOne({ email }).populate(`companyId`);
     }
       
 
@@ -41,6 +41,7 @@ const loginUser = async (req, res) => {
     const payload = {
       userId: user._id,
       role: user.role,
+        companyId: user.companyId?._id || user.companyId || "", // ✅ Add this
     };
 
     const token = jwt.sign(payload, "secretKey", { expiresIn: "1d" });
@@ -62,7 +63,7 @@ const loginUser = async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: 'Server error', success: false });
-  }
+  } 
 };
 
 

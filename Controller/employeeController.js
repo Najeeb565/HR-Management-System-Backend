@@ -3,9 +3,20 @@ const Employee = require('../Model/employee');
 const sendEmail = require('../utils/sendEmail');
 
 // ✅ Get all employees
+// exports.getAllEmployees = async (req, res) => {
+//   try {
+//     const employees = await Employee.find();
+//     res.status(200).json(employees);
+//   } catch (error) {
+//     console.error('Error fetching employees>', error);
+//     res.status(500).json({ message:'Server Error!', error: error.message });
+//   }
+// };
+
+
 exports.getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find();
+    const employees = await Employee.find({ companyId: req.user.companyId });
     res.status(200).json(employees);
   } catch (error) {
     console.error('Error fetching employees>', error);
@@ -29,12 +40,10 @@ exports.getEmployeeById = async (req, res) => {
 };
 
 
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
 
 
 const generateRandomPassword = () => {
+ 
   const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const numbers = '0123456789';
   let password = '';
@@ -56,14 +65,29 @@ const generateRandomPassword = () => {
 
 exports.createEmployee = async (req, res) => {
   try {
-    const {
-      firstName, lastName, email, phone, role,
-      department, salary, status, joiningDate, companyId
-    } = req.body;
+    // const {
+    //   firstName, lastName, email, phone, role,
+    //   department, salary, status, joiningDate, companyId
+    // } = req.body;
+    
 
-    if (!companyId) {
-      return res.status(400).json({ message: 'CompanyId is required!' });
-    }
+    // if (!companyId) {
+    //   return res.status(400).json({ message: 'CompanyId is required!' });
+    // }
+
+    const {
+  firstName, lastName, email, phone, role,
+  department, salary, status, joiningDate
+} = req.body;
+
+const companyId = req.user.companyId;
+
+if (!companyId) {
+  return res.status(400).json({ message: 'Unauthorized: Missing company ID from token' });
+}
+
+
+
 
     const employeeId = 'EMP' + Date.now();
     const password = generateRandomPassword(); // 👈 New password
