@@ -5,27 +5,29 @@ const {
   createCompany,
   updateCompany,
   changeCompanyStatus,
-  getCompanyStatus, 
+  getCompanyStatus,
   setCompanyAdmin,
 } = require('../Controller/companycontroller');
 
-// ✅ Get single company detail
-router.get('/:id', getCompany);
+const authenticate = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
 
-// ✅ Get only status of a company (React mein use ho raha hai)
-router.get('/:id/status', getCompanyStatus);
+// ✅ Get single company detail (Admin + SuperAdmin)
+router.get('/:id', authenticate, authorizeRoles("admin", "superadmin"), getCompany);
 
-// ✅ Create new company
-router.post('/', createCompany);
+// ✅ Get only status of a company (accessible to all logged-in roles)
+router.get('/:id/status', authenticate, authorizeRoles("admin", "employee", "superadmin"), getCompanyStatus);
 
-// ✅ Update full company details
-router.put('/:id', updateCompany);
+// ✅ Create new company (SuperAdmin only)
+router.post('/', authenticate, authorizeRoles("superadmin"), createCompany);
 
-// ✅ Change company status (approved, pending, etc.)
-router.put('/:id/status', changeCompanyStatus);
+// ✅ Update full company details (SuperAdmin only)
+router.put('/:id', authenticate, authorizeRoles("superadmin"), updateCompany);
 
-// ✅ Set company admin
+// ✅ Change company status (SuperAdmin only)
+router.put('/:id/status', authenticate, authorizeRoles("superadmin"), changeCompanyStatus);
 
-router.post('/set-admin/:companyId', setCompanyAdmin);
+// ✅ Set company admin (SuperAdmin only)
+router.post('/set-admin/:companyId', authenticate, authorizeRoles("superadmin"), setCompanyAdmin);
 
 module.exports = router;

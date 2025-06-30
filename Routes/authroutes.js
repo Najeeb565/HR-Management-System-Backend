@@ -1,10 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { registerCompany } = require("../Controller/auth");
-const { loginUser } = require('../Controller/auth');
 
+const { registerCompany, loginUser } = require("../Controller/auth");
+const authenticate = require("../middleware/authMiddleware");
+const authorizeRoles = require("../middleware/roleMiddleware");
+
+// ✅ Public: Login
 router.post('/login', loginUser);
 
-router.post("/companies", registerCompany);
+// ✅ SuperAdmin Only: Register Company
+router.post("/companies", authenticate, authorizeRoles("superadmin"), registerCompany);
 
 module.exports = router;
