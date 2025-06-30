@@ -3,27 +3,25 @@ const Employee = require('../Model/employee');
 const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcryptjs');
 
-// ✅ Get all employees
-// exports.getAllEmployees = async (req, res) => {
-//   try {
-//     const employees = await Employee.find();
-//     res.status(200).json(employees);
-//   } catch (error) {
-//     console.error('Error fetching employees>', error);
-//     res.status(500).json({ message:'Server Error!', error: error.message });
-//   }
-// };
-
-
+// ✅ Get all employees// controllers/employeeController.js
 exports.getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find({ companyId: req.user.companyId });
+    const { companyId } = req.query; // ✅ get from query string
+
+    if (!companyId) {
+      return res.status(400).json({ message: 'companyId is required in query!' });
+    }
+
+    const employees = await Employee.find({ companyId }); // ✅ filtered
+
     res.status(200).json(employees);
   } catch (error) {
     console.error('Error fetching employees>', error);
     res.status(500).json({ message:'Server Error!', error: error.message });
   }
 };
+
+
 
 // ✅ Get a single employee by ID
 exports.getEmployeeById = async (req, res) => {
@@ -44,7 +42,7 @@ exports.getEmployeeById = async (req, res) => {
 
 
 const generateRandomPassword = () => {
-  return Math.random().toString(36).slice(-8); // e.g. 'x9v4k7qz'
+  return Math.random().toString(36).slice(-8);
 };
 
 
@@ -75,7 +73,7 @@ if (!companyId) {
 
 
     const employeeId = 'EMP' + Date.now();
-    const password = generateRandomPassword(); 
+    const password = generateRandomPassword();
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newEmployee = new Employee({
@@ -90,10 +88,11 @@ if (!companyId) {
       joiningDate,
       companyId,
       employeeId,
-      password : hashedPassword, 
+      password: hashedPassword,
     });
 
     await newEmployee.save();
+    console.log('password------,', password);
 
     const subject = 'Your Account Password';
     const text = `Dear ${firstName},\n\nYour account has been created.\nYour login password is: ${password}\n\nPlease login and change your password.\n\nRegards,\nHR Team`;
@@ -103,6 +102,7 @@ if (!companyId) {
     res.status(201).json({
       message: 'Employee created & password sent via email!',
       employee: newEmployee,
+
     });
 
   } catch (error) {
@@ -123,7 +123,7 @@ exports.updateEmployee = async (req, res) => {
     const updateData = req.body;
 
     const updatedEmployee = await Employee.findByIdAndUpdate(employeeId, updateData, {
-      new: true, 
+      new: true,
       runValidators: true,
     });
 
