@@ -13,6 +13,7 @@ const companyController = require('./Controller/companycontroller');
 const settingController = require('./Controller/settingController');
 const { registerCompany } = require('./Controller/auth');
 const taskRoutes = require('./Routes/taskroutes');
+const leaveroutes =  require('./Routes/leaveroutes');
 const attendanceRoutes = require("./Routes/attendanceRoutes");
 
 const app = express();
@@ -33,7 +34,9 @@ app.use('/api/employees', employeesRouter);
 app.use('/api/admin', adminRoutes);
 
 app.use('/api/tasks', taskRoutes);
+app.use('/api/leaves', leaveroutes);
 app.use("/api/attendance", attendanceRoutes);
+
 
 // Company Controller Routes
 app.get('/api/companies', companyController.getCompanies);
