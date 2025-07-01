@@ -2,6 +2,7 @@
 const Employee = require('../Model/employee');
 const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 // ✅ Get all employees// controllers/employeeController.js
 exports.getAllEmployees = async (req, res) => {
@@ -17,11 +18,9 @@ exports.getAllEmployees = async (req, res) => {
     res.status(200).json(employees);
   } catch (error) {
     console.error('Error fetching employees>', error);
-    res.status(500).json({ message:'Server Error!', error: error.message });
+    res.status(500).json({ message: 'Server Error!', error: error.message });
   }
 };
-
-
 
 // ✅ Get a single employee by ID
 exports.getEmployeeById = async (req, res) => {
@@ -38,9 +37,6 @@ exports.getEmployeeById = async (req, res) => {
   }
 };
 
-
-
-
 const generateRandomPassword = () => {
   return Math.random().toString(36).slice(-8);
 };
@@ -48,26 +44,16 @@ const generateRandomPassword = () => {
 
 exports.createEmployee = async (req, res) => {
   try {
-    // const {
-    //   firstName, lastName, email, phone, role,
-    //   department, salary, status, joiningDate, companyId
-    // } = req.body;
-    
-
-    // if (!companyId) {
-    //   return res.status(400).json({ message: 'CompanyId is required!' });
-    // }
-
     const {
-  firstName, lastName, email, phone, role,
-  department, salary, status, joiningDate
-} = req.body;
+      firstName, lastName, email, phone, role,
+      department, salary, status, joiningDate
+    } = req.body;
 
-const companyId = req.user.companyId;
+    const companyId = req.user.companyId;
 
-if (!companyId) {
-  return res.status(400).json({ message: 'Unauthorized: Missing company ID from token' });
-}
+    if (!companyId) {
+      return res.status(400).json({ message: 'Unauthorized: Missing company ID from token' });
+    }
 
 
 
@@ -147,5 +133,48 @@ exports.deleteEmployee = async (req, res) => {
   } catch (error) {
     console.error('Error deleting employee>', error);
     res.status(500).json({ message: 'Server Error!', error: error.message });
+  }
+};
+
+
+exports.getEmployeeStats = async (req, res) => {
+  const companyId = req.query.companyId;
+
+  if (!companyId) {
+    return res.status(400).json({ success: false, message: 'Company ID is required' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    return res.status(400).json({ success: false, message: 'Invalid Company ID format' });
+  }
+
+  try {
+    const totalEmployees = await Employee.countDocuments({ companyId });
+    const activeEmployees = await Employee.countDocuments({ companyId, status: 'Active' });
+    const inactiveEmployees = await Employee.countDocuments({ companyId, status: 'Inactive' });
+
+    const departments = await Employee.aggregate([
+      {
+        $match: {
+          companyId: new mongoose.Types.ObjectId(companyId)  // ✅ safe conversion
+        }
+      },
+      {
+        $group: {
+          _id: "$department",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      totalEmployees,
+      activeEmployees,
+      inactiveEmployees,
+      departments
+    });
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
