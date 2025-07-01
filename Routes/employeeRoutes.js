@@ -2,25 +2,23 @@ const express = require('express');
 const router = express.Router();
 const employeeController = require('../Controller/employeeController');
 
-// Check if controller is loading properly
-// console.log('employeeController loaded?', employeeController);
+const authenticate = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
 
-// ✅ GET all employees
-router.get("/", employeeController.getAllEmployees);
 
-// ✅ CREATE a new employee
-router.post("/", (req, res, next) => {
+router.get("/", authenticate, authorizeRoles("admin"), employeeController.getAllEmployees);
+
+
+router.post("/", authenticate, authorizeRoles("admin"), (req, res, next) => {
   console.log('POST /api/employees received!', req.body);
   employeeController.createEmployee(req, res, next);
 });
 
-// ✅ UPDATE an employee by ID
-router.put("/:id", employeeController.updateEmployee);
 
-// ✅ DELETE an employee by ID
-router.delete("/:id", employeeController.deleteEmployee);
+router.put("/:id", authenticate, authorizeRoles("admin"), employeeController.updateEmployee);
 
-// ✅ GET single employee by ID (for editing) — this must come LAST
-router.get("/:id", employeeController.getEmployeeById); // 👈 move this to the end
+router.delete("/:id", authenticate, authorizeRoles("admin"), employeeController.deleteEmployee);
+
+router.get("/:id", authenticate, authorizeRoles("admin", "employee"), employeeController.getEmployeeById);
 
 module.exports = router;
