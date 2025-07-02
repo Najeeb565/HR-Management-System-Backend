@@ -11,7 +11,7 @@ const allowedRoles = ['admin', 'employee'];
 const generateToken = (user) => {
   return jwt.sign(
     {
-      userId: user._id,
+      id: user._id,
       role: user.role.toLowerCase(),
       companyId: user.companyId?._id || user.companyId
     },

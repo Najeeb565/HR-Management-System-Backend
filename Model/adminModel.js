@@ -9,6 +9,15 @@ const adminSchema = new mongoose.Schema({
   address: String,
   profilePic: String,
 
+  otp: {
+    type: String,
+    default: null
+  },
+  otpExpire: {
+    type: Date,
+    default: null
+  },
+
   // 👇 Add these
   dateOfBirth: Date,
   hireDate: Date,
