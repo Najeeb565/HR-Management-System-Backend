@@ -1,7 +1,7 @@
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    // console.log("User connected:", socket.id);
 
     socket.on("chatMessage", async (message) => {
       io.emit("chatMessage", message); // broadcast to all users
@@ -14,7 +14,7 @@ module.exports = (io) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
+      // console.log("User disconnected:", socket.id);
     });
   });
 };

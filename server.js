@@ -24,11 +24,11 @@ const empProfileRoutes = require("./Routes/empProfileRoutes");
 const chatRoutes = require('./Routes/chatRoutes');
 
 const app = express();
-const PORT = 5000;
+
 
 dotenv.config();
 
-const app = express();
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
