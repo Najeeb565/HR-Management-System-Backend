@@ -17,6 +17,8 @@ const authenticate = (req, res, next) => {
 
     // ✅ Attach user to request
     req.user = decoded; // contains: userId, role, companyId
+    // console.log("🔑 Decoded Token:", decoded);
+
     next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid token", success: false });

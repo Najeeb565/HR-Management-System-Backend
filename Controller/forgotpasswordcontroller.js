@@ -39,6 +39,7 @@ exports.sendOTP = async (req, res) => {
   try {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const otpExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    console.log('OTP:', otp);
 
     // Try updating in Employee
     let user = await Employee.findOneAndUpdate(

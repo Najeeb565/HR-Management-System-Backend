@@ -15,6 +15,7 @@ const { registerCompany } = require('./Controller/auth');
 const taskRoutes = require('./Routes/taskroutes');
 const leaveroutes =  require('./Routes/leaveroutes');
 const attendanceRoutes = require("./Routes/attendanceRoutes");
+const empProfileRoutes = require("./Routes/empProfileRoutes");
 
 const app = express();
 const PORT = 5000;
@@ -36,6 +37,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/leaves', leaveroutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/profile", empProfileRoutes);
 
 
 // Company Controller Routes
