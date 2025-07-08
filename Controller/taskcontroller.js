@@ -3,7 +3,7 @@ const Task = require('../Model/taskmodel');
 // Create Task
 const createTask = async (req, res) => {
   try {
-    const { assignedTo, taskTitle, description } = req.body;
+    const { assignedTo, taskTitle, description, companyId  } = req.body;
 
     if (!assignedTo || !taskTitle || !description) {
       return res.status(400).json({ message: "All fields are required." });
@@ -13,7 +13,8 @@ const createTask = async (req, res) => {
       assignedTo,
       taskTitle,
       description,
-      status: 'pending'
+      status: 'pending',
+      companyId,
     });
 
     const savedTask = await newTask.save();
@@ -28,17 +29,25 @@ const createTask = async (req, res) => {
 // Get All Tasks
 const getTasks = async (req, res) => {
   try {
-    const { assignedTo } = req.query;
+    const { assignedTo, companyId } = req.query;
 
-    const query = assignedTo ? { assignedTo } : {};
+    if (!companyId) {
+      return res.status(400).json({ message: "Missing companyId in request" });
+    }
+
+    const query = {
+      companyId,
+      ...(assignedTo && { assignedTo })
+    };
+
     const tasks = await Task.find(query).sort({ createdAt: -1 });
-
     res.status(200).json(tasks);
   } catch (error) {
     console.error("Error getting tasks:", error.message);
     res.status(500).json({ message: "Server error while fetching tasks" });
   }
 };
+
 
 
 

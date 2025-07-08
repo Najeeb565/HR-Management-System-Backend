@@ -3,15 +3,19 @@ const Leave = require('../Model/employeeleave');
 // POST /api/leaves
 exports.createLeave = async (req, res) => {
   try {
-    const { leaveType, startDate, endDate, reason, employeeId } = req.body;
+    const { leaveType, startDate, endDate, reason, employeeId, companyId } = req.body;
 
-    // Create leave with employee ID
+    if (!leaveType || !startDate || !endDate || !reason || !employeeId || !companyId) {
+      return res.status(400).json({ error: "All fields are required including companyId" });
+    }
+
     const leave = await Leave.create({
       leaveType,
       startDate,
       endDate,
       reason,
       employeeId,
+      companyId,
     });
 
     res.status(201).json(leave);
@@ -20,16 +24,20 @@ exports.createLeave = async (req, res) => {
   }
 };
 
+
 // GET /api/leaves
 // GET /api/leaves?employeeId=6864092916530de49830bd6c
 exports.getLeaves = async (req, res) => {
   try {
-    const { employeeId } = req.query; // frontend se ID receive karo
+    const { employeeId, companyId } = req.query;
 
-    const filter = employeeId ? { employeeId } : {}; // agar ID hai to filter laga do
+    const filter = {};
+    if (employeeId) filter.employeeId = employeeId;
+    if (companyId) filter.companyId = companyId;
+
 
     const leaves = await Leave.find(filter)
-      .populate('employeeId', 'firstName email') 
+      .populate('employeeId', 'firstName email')
       .sort({ createdAt: -1 });
 
     res.status(200).json(leaves);
