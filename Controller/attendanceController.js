@@ -2,6 +2,7 @@ const Attendance = require("../Model/Attendance");
 const moment = require("moment");
 
 // Clock In
+// Clock In
 exports.clockIn = async (req, res) => {
   const testMode = req.body.testMode;
   const date = testMode
@@ -16,14 +17,24 @@ exports.clockIn = async (req, res) => {
     return res.status(400).json({ message: "Already clocked in!" });
   }
 
+  // 👉 Check for late status
+  const isLate = moment(time, "HH:mm").isAfter(moment("05:00", "HH:mm"));
+
   const attendance = await Attendance.findOneAndUpdate(
     { employeeId, date },
-    { clockIn: time, status: "Present" },
+    {
+      clockIn: time,
+      status: isLate ? "Late" : "Present"
+    },
     { upsert: true, new: true }
   );
 
-  res.status(200).json({ message: "Clocked in successfully", attendance });
+  res.status(200).json({
+    message: isLate ? "Clocked in (Late)" : "Clocked in successfully",
+    attendance
+  });
 };
+
 
 // Clock Out
 exports.clockOut = async (req, res) => {
@@ -79,13 +90,13 @@ exports.clockOut = async (req, res) => {
 
 // Get Attendance History
 exports.getAttendanceHistory = async (req, res) => {
-    const employeeId = req.user.id;
-    const month = moment().format("YYYY-MM");
+  const employeeId = req.user.id;
+  const month = moment().format("YYYY-MM");
 
-    const records = await Attendance.find({
-        employeeId,
-        date: { $regex: `^${month}` }
-    }).sort({ date: -1 });
+  const records = await Attendance.find({
+    employeeId,
+    date: { $regex: `^${month}` }
+  }).sort({ date: -1 });
 
-    res.status(200).json(records);
+  res.status(200).json(records);
 };

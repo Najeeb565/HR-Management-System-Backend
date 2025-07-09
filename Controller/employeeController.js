@@ -4,16 +4,16 @@ const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
-// ✅ Get all employees// controllers/employeeController.js
+
 exports.getAllEmployees = async (req, res) => {
   try {
-    const { companyId } = req.query; // ✅ get from query string
+    const { companyId } = req.query; 
 
     if (!companyId) {
       return res.status(400).json({ message: 'companyId is required in query!' });
     }
 
-    const employees = await Employee.find({ companyId }); // ✅ filtered
+    const employees = await Employee.find({ companyId }); 
 
     res.status(200).json(employees);
   } catch (error) {

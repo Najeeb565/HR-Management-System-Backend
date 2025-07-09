@@ -7,6 +7,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 const socketSetup = require('./socket');
+const path = require('path');
+
 
 // Routes & Controllers
 const authRoutes = require('./Routes/authroutes');
@@ -26,6 +28,7 @@ const empProfileRoutes = require("./Routes/empProfileRoutes");
 const chatRoutes = require('./Routes/chatRoutes');
 
 const app = express();
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 dotenv.config();

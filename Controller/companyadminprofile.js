@@ -12,19 +12,36 @@ const getAdminProfile = async (req, res) => {
   }
 };
 
-// PUT /api/admin/profile/:email
+
+
+
 const updateAdminProfile = async (req, res) => {
   try {
+    const email = req.params.email;
+
+    const updateData = { ...req.body };
+
+    // ✅ Handle image file
+    if (req.file) {
+      updateData.profilePic = req.file.filename; // Save only filename
+    }
+
     const updated = await Admin.findOneAndUpdate(
-      { email: req.params.email },
-      { ...req.body },
+      { email },
+      updateData,
       { new: true }
     );
-    if (!updated) return res.status(404).json({ message: 'Admin not found' });
+
+    if (!updated) return res.status(404).json({ message: "Admin not found" });
     res.json(updated);
+
   } catch (err) {
-    res.status(500).json({ message: 'Error updating profile' });
+    console.error("Update profile error:", err);
+    res.status(500).json({ message: "Error updating profile" });
   }
 };
+
+module.exports = { getAdminProfile, updateAdminProfile };
+
 
 module.exports = { getAdminProfile, updateAdminProfile };
