@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require("../middleware/upload");
 
 const {
   getEmployeeProfile,
@@ -11,6 +12,6 @@ const authorizeRoles = require('../middleware/roleMiddleware');
 
 // Employee profile routes
 router.get('/:email',authenticate, authorizeRoles("admin", "employee", "hr"), getEmployeeProfile);
-router.put('/:email',authenticate, authorizeRoles("admin", "employee", "hr"), updateEmployeeProfile);
+router.put('/:email',authenticate, authorizeRoles("admin", "employee", "hr"), upload.single("profilePicture"), updateEmployeeProfile);
 
 module.exports = router;

@@ -30,6 +30,8 @@ const employeeSchema = new mongoose.Schema(
     // 🔐 OTP fields for forgot password
     otp: { type: String, default: null },
     otpExpire: { type: Date, default: null },
+    dateOfBirth: { type: Date,},
+    
 
   },
   { timestamps: true }

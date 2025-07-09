@@ -64,6 +64,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         name: user.firstName || user.name,
         role: normalizedRole,
+        profilePicture: user.profilePic,
         companyId: user.companyId?._id || user.companyId,
         companyName: user.companyId?.companyName || "",
       },

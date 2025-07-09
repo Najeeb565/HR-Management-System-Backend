@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require("../middleware/upload");
 
 const {
   getAdminProfile,
@@ -13,6 +14,6 @@ const authorizeRoles = require('../middleware/roleMiddleware');
 router.get('/profile/:email', authenticate, authorizeRoles("admin"), getAdminProfile);
 
 // ✅ Admin-only: Update Profile
-router.put('/profile/:email', authenticate, authorizeRoles("admin"), updateAdminProfile);
+router.put('/profile/:email' , upload.single("profilePic"), authenticate, authorizeRoles("admin"), updateAdminProfile);
 
 module.exports = router;
