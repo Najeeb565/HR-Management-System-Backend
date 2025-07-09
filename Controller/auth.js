@@ -5,13 +5,13 @@ const Company = require('../Model/authschema');
 const Employee = require('../Model/employee');
 const Admin = require('../Model/adminModel');
 
-const allowedRoles = ['admin', 'employee'];
+const allowedRoles = ['admin', 'employee', ];
 
 // ✅ Helper: Generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
+      userId: user._id,
       role: user.role.toLowerCase(),
       companyId: user.companyId?._id || user.companyId
     },

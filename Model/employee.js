@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const employeeSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true, trim: true },
@@ -31,6 +32,8 @@ const employeeSchema = new mongoose.Schema(
     otp: { type: String, default: null },
     otpExpire: { type: Date, default: null },
 
+    // 🎂 Birthday field added from second schema
+    birthday: { type: Date },
   },
   { timestamps: true }
 );
