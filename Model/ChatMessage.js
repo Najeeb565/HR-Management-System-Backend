@@ -8,7 +8,12 @@ const chatMessageSchema = new mongoose.Schema({
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
+    required: true, 
+  },
+   senderId: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    refPath: "senderRole" // dynamic ref to Admin or Employee
   },
 replyTo: {
   senderName: String,
