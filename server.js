@@ -18,9 +18,11 @@ const employeesRouter = require('./Routes/employeeRoutes');
 const adminRoutes = require('./Routes/adminroutes');
 const companyController = require('./Controller/companycontroller');
 const settingController = require('./Controller/settingController');
-const { registerCompany } = require('./Controller/auth');
+// const { registerCompany } = require('./Controller/auth');
 const taskRoutes = require('./Routes/taskroutes');
+const birthdayRoutes = require("./Routes/birthdayroutes");
 const leaveroutes =  require('./Routes/leaveroutes');
+
 const attendanceRoutes = require("./Routes/attendanceRoutes");
 const empProfileRoutes = require("./Routes/empProfileRoutes");
 const chatRoutes = require('./Routes/chatRoutes');
@@ -56,13 +58,14 @@ app.use('/api/leaves', leaveroutes);
 app.use('/api/chat', chatRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/profile", empProfileRoutes);
+app.use("/api/birthdays", birthdayRoutes);
 
 
 // Company Controller Routes
 app.get('/api/companies', companyController.getCompanies);
 app.get('/api/dashboard', companyController.getDashboardStats);
 app.put('/api/companies/:id/status', companyController.changeCompanyStatus);
-app.post('/api/companies', registerCompany);
+app.use('/api/companies', companyRoutes); // ✅ Yeh sahi route hai!
 
 // Settings Routes
 app.get('/api/settings', settingController.getSettings);

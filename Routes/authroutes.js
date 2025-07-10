@@ -11,8 +11,7 @@ const forgotController = require('../Controller/forgotpasswordcontroller');
 router.post('/login', loginUser);
 
 // ✅ SuperAdmin Only: Register Company
-router.post("/companies", authenticate, authorizeRoles("superadmin"), registerCompany);
-
+// router.post("/", registerCompany);
 
 router.post('/verify-email', forgotController.verifyEmail);
 router.post('/send-otp', forgotController.sendOTP);

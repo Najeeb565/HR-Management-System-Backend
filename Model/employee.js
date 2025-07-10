@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const employeeSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true, trim: true },
@@ -32,6 +33,7 @@ const employeeSchema = new mongoose.Schema(
     otpExpire: { type: Date, default: null },
     dateOfBirth: { type: Date,},
     
+
 
   },
   { timestamps: true }

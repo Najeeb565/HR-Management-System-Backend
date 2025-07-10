@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Company = require('../Model/authschema');
 const Admin = require('../Model/adminModel');
 const bcrypt = require('bcryptjs');
+const { response } = require('express');
 
 // Get all companies with pagination, filtering, and sorting
 const getCompanies = asyncHandler(async (req, res) => {
@@ -67,14 +68,14 @@ const getCompany = asyncHandler(async (req, res) => {
   res.json({ success: true, data: company });
 });
 
-// Create a new company
 const createCompany = asyncHandler(async (req, res) => {
   const company = await Company.create({ ...req.body, status: 'pending' });
+  console.log("✅ New company created:", company); // backend console
   res.status(201).json({
-  success: true,
-  message: "Company registered successfully",
-  companyId: company._id 
-});
+    success: true,
+    message: "Company registered successfully",
+    companyId: company._id.toString()
+  });
 });
 
 // Update a company by ID
