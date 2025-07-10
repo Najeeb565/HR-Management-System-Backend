@@ -34,8 +34,7 @@ const employeeSchema = new mongoose.Schema(
     dateOfBirth: { type: Date,},
     
 
-    // 🎂 Birthday field added from second schema
-    birthday: { type: Date },
+
   },
   { timestamps: true }
 );
