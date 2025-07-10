@@ -3,7 +3,7 @@ const Employee = require("../Model/employee");
 exports.getUpcomingBirthdays = async (req, res) => {
   try {
     const today = new Date();
-    const currentMonth = today.getMonth(); // 0 = Jan
+    const currentMonth = today.getMonth(); 
     const currentDay = today.getDate();
     const nextMonth = (currentMonth + 1) % 12;
 
