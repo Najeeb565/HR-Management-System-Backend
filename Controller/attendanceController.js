@@ -1,8 +1,7 @@
 const Attendance = require("../Model/Attendance");
 const moment = require("moment");
 
-// Clock In
-// Clock In
+
 exports.clockIn = async (req, res) => {
   const testMode = req.body.testMode;
   const date = testMode
@@ -17,8 +16,11 @@ exports.clockIn = async (req, res) => {
     return res.status(400).json({ message: "Already clocked in!" });
   }
 
-  // 👉 Check for late status
-  const isLate = moment(time, "HH:mm").isAfter(moment("05:00", "HH:mm"));
+  const officeStart = moment("16:00", "HH:mm"); // 4:00 PM
+  const lateThreshold = moment("17:00", "HH:mm"); // 5:00 PM
+  const currentTime = moment(time, "HH:mm");
+
+  const isLate = currentTime.isSameOrAfter(lateThreshold);
 
   const attendance = await Attendance.findOneAndUpdate(
     { employeeId, date },
@@ -39,7 +41,7 @@ exports.clockIn = async (req, res) => {
 // Clock Out
 exports.clockOut = async (req, res) => {
   try {
-    const testMode = req.body.testMode; // ✅ receive from frontend
+    const testMode = req.body.testMode;
     const date = testMode
       ? moment().add(1, "days").format("YYYY-MM-DD")
       : moment().format("YYYY-MM-DD");
@@ -47,7 +49,6 @@ exports.clockOut = async (req, res) => {
     const employeeId = req.user.id;
     const time = moment().format("HH:mm");
 
-    // 🔍 1. Find today's (or test) record
     let record = await Attendance.findOne({ employeeId, date });
 
     if (!record) {
@@ -62,7 +63,6 @@ exports.clockOut = async (req, res) => {
       return res.status(400).json({ message: "Already clocked out for this date." });
     }
 
-    // ⏱ 2. Calculate total working hours
     const start = moment(record.clockIn, "HH:mm");
     const end = moment(time, "HH:mm");
 
@@ -72,9 +72,17 @@ exports.clockOut = async (req, res) => {
 
     const duration = moment.utc(end.diff(start)).format("HH:mm");
 
-    // 💾 3. Save the clock-out
+    // Check for half day
+    const halfDayThreshold = moment("20:00", "HH:mm"); // 8:00 PM
+    const isHalfDay = end.isBefore(halfDayThreshold);
+
     record.clockOut = time;
     record.totalHours = duration;
+
+    if (isHalfDay) {
+      record.status = "Half Day";
+    }
+
     await record.save();
 
     res.status(200).json({ message: "Clocked out successfully", record });
@@ -84,6 +92,7 @@ exports.clockOut = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
 
 
 

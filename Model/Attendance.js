@@ -14,10 +14,11 @@ const attendanceSchema = new mongoose.Schema({
   clockOut: String,
   totalHours: String,
   status: {
-    type: String,
-    enum: ["Present", "Absent"],
-    default: "Present"
-  }
+  type: String,
+  enum: ["Present", "Absent", "Late", "Half Day"],
+  default: "Present"
+}
+
 }, { timestamps: true });
 
 attendanceSchema.index({ employeeId: 1, date: 1 }, { unique: true });

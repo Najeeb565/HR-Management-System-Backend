@@ -23,10 +23,11 @@ exports.getUpcomingBirthdays = async (req, res) => {
         _id: emp._id,
         name: `${emp.firstName} ${emp.lastName}`,
         birthday: emp.dateOfBirth,
-        profilePicture: emp.profilePic || null,
+        profilePicture: emp.profilePicture || null,
       }));
 
-    console.log("🎂 Upcoming Birthdays (Only This Month):", upcomingEmployees);
+    console.log("🎂 Upcoming Birthdays:", upcomingEmployees);
+
 
     res.status(200).json({
       success: true,

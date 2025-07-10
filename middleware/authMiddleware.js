@@ -15,9 +15,12 @@ const authenticate = (req, res, next) => {
     // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ Attach user to request
-    req.user = decoded; // contains: userId, role, companyId
-    // console.log("🔑 Decoded Token:", decoded);
+   req.user = {
+  id: decoded.userId,
+  role: decoded.role,
+  companyId: decoded.companyId
+};
+
 
     next();
   } catch (error) {
