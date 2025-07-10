@@ -5,7 +5,6 @@ exports.getUpcomingBirthdays = async (req, res) => {
     const today = new Date();
     const currentMonth = today.getMonth(); // 0 = Jan
     const currentDay = today.getDate();
-    const nextMonth = (currentMonth + 1) % 12;
 
     const employees = await Employee.find();
 
@@ -17,11 +16,8 @@ exports.getUpcomingBirthdays = async (req, res) => {
         const birthMonth = bday.getMonth();
         const birthDay = bday.getDate();
 
-        // ✔ Only show future birthdays (not past in current month)
-        return (
-          (birthMonth === currentMonth && birthDay >= currentDay) ||
-          (birthMonth === nextMonth)
-        );
+        // ✅ Only include birthdays from current month & future days
+        return birthMonth === currentMonth && birthDay >= currentDay;
       })
       .map(emp => ({
         _id: emp._id,
@@ -30,7 +26,7 @@ exports.getUpcomingBirthdays = async (req, res) => {
         profilePicture: emp.profilePic || null,
       }));
 
-    console.log("🎂 Upcoming Birthdays (Today + Future Only):", upcomingEmployees);
+    console.log("🎂 Upcoming Birthdays (Only This Month):", upcomingEmployees);
 
     res.status(200).json({
       success: true,
