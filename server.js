@@ -8,6 +8,8 @@ const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 const socketSetup = require('./socket');
 const path = require('path');
+const notificationRoutes = require("./Routes/notificationRoutes");
+
 
 
 // Routes & Controllers
@@ -59,6 +61,7 @@ app.use('/api/chat', chatRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/profile", empProfileRoutes);
 app.use("/api/birthdays", birthdayRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 // Company Controller Routes

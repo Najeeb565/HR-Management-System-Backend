@@ -1,13 +1,20 @@
 const Task = require('../Model/taskmodel');
+const sendNotification = require("../utils/sendNotification");
+const Admin = require("../Model/adminModel");
+const Employee = require("../Model/employee");
 
 // Create Task
 const createTask = async (req, res) => {
   try {
-    const { assignedTo, taskTitle, description, companyId  } = req.body;
+    const { assignedTo, taskTitle, description, companyId, createdBy } = req.body;
 
-    if (!assignedTo || !taskTitle || !description) {
+    if (!assignedTo || !taskTitle || !description || !createdBy) {
       return res.status(400).json({ message: "All fields are required." });
     }
+
+    // Get admin name
+    const adminData = await Admin.findById(createdBy);
+    const adminName = adminData?.name || "Admin";
 
     const newTask = new Task({
       assignedTo,
@@ -15,9 +22,19 @@ const createTask = async (req, res) => {
       description,
       status: 'pending',
       companyId,
+      createdBy,
     });
 
     const savedTask = await newTask.save();
+
+    // Notify employee with admin name
+    await sendNotification({
+      recipientId: assignedTo,
+      role: "employee",
+      title: "New Task Assigned",
+      message: `${adminName} assigned you a task: "${savedTask.taskTitle}".`,
+    });
+
     res.status(201).json(savedTask);
   } catch (error) {
     console.error("Error creating task:", error.message);
@@ -49,25 +66,42 @@ const getTasks = async (req, res) => {
 };
 
 
-
-
 // Update Task
 const updateTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) {
-      console.log(`Task not found: ${req.params.id}`);
       return res.status(404).json({ message: "Task not found" });
     }
+
+    const previousStatus = task.status;
+    const previousTitle = task.taskTitle;
+
     const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+
+    // Get employee name
+    const employeeData = await Employee.findById(task.assignedTo);
+    const employeeName = employeeData?.firstName || "Employee";
+
+    // If status updated, notify admin with employee name
+    if (req.body.status && req.body.status !== previousStatus) {
+      await sendNotification({
+        recipientId: task.createdBy,
+        role: "admin",
+        title: "Task Status Updated",
+        message: `${employeeName} updated task "${task.taskTitle}" to "${req.body.status}".`,
+      });
+    }
+
     res.status(200).json(updatedTask);
   } catch (error) {
     console.error("Error updating task:", error.message);
     res.status(500).json({ message: "Server error while updating task" });
   }
 };
+
 
 // Delete Task
 const deleteTask = async (req, res) => {
@@ -76,12 +110,26 @@ const deleteTask = async (req, res) => {
     if (!deletedTask) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    // Get admin name
+    const adminData = await Admin.findById(deletedTask.createdBy);
+    const adminName = adminData?.name || "Admin";
+
+    // Notify employee
+    await sendNotification({
+      recipientId: deletedTask.assignedTo,
+      role: "employee",
+      title: "Task Deleted",
+      message: `${adminName} deleted your task "${deletedTask.taskTitle}".`,
+    });
+
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error("Error deleting task:", error.message);
     res.status(500).json({ message: "Server error while deleting task" });
   }
 };
+
 
 module.exports = {
   createTask,

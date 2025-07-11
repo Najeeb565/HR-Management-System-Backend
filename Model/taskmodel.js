@@ -20,6 +20,11 @@ const taskSchema = new mongoose.Schema({
     default: 'pending'
   },
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
+  createdBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User", // or Admin, depending on your setup
+  required: true
+},
 }, { timestamps: true });
 
 module.exports = mongoose.model('Task', taskSchema);
