@@ -29,6 +29,7 @@ const attendanceRoutes = require("./Routes/attendanceRoutes");
 const empProfileRoutes = require("./Routes/empProfileRoutes");
 const chatRoutes = require('./Routes/chatRoutes');
 
+
 const app = express();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -62,7 +63,7 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/profile", empProfileRoutes);
 app.use("/api/birthdays", birthdayRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use("/api/chat", require("./Routes/aichatroutes"));
 
 // Company Controller Routes
 app.get('/api/companies', companyController.getCompanies);
