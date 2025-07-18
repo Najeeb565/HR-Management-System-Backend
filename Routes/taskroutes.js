@@ -10,9 +10,9 @@ const authenticate = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
 // ✅ Apply auth + role protection
-router.post('/post', authenticate, authorizeRoles("admin"), createTask);
-router.get('/', authenticate, authorizeRoles("admin", "employee"), getTasks);
-router.put('/:id', authenticate, authorizeRoles("admin" , "employee"), updateTask);
-router.delete('/:id', authenticate, authorizeRoles("admin"), deleteTask);
+router.post('/post', authenticate, authorizeRoles("companyadmin"), createTask);
+router.get('/', authenticate, authorizeRoles("companyadmin", "employee"), getTasks);
+router.put('/:id', authenticate, authorizeRoles("companyadmin" , "employee"), updateTask);
+router.delete('/:id', authenticate, authorizeRoles("companyadmin"), deleteTask);
 
 module.exports = router;

@@ -1,3 +1,5 @@
+
+// taskcontroller.js
 const Task = require('../Model/taskmodel');
 const sendNotification = require("../utils/sendNotification");
 const Admin = require("../Model/adminModel");
@@ -12,7 +14,6 @@ const createTask = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Get admin name
     const adminData = await Admin.findById(createdBy);
     const adminName = adminData?.name || "Admin";
 
@@ -27,13 +28,14 @@ const createTask = async (req, res) => {
 
     const savedTask = await newTask.save();
 
-    // Notify employee with admin name
+    const io = req.app.get("io"); // ✅ Access socket.io instance
     await sendNotification({
       recipientId: assignedTo,
       role: "employee",
       title: "New Task Assigned",
       message: `${adminName} assigned you a task: "${savedTask.taskTitle}".`,
-    });
+      senderName: adminName
+    }, io);
 
     res.status(201).json(savedTask);
   } catch (error) {
@@ -42,8 +44,36 @@ const createTask = async (req, res) => {
   }
 };
 
+// Delete Task
+const deleteTask = async (req, res) => {
+  try {
+    const deletedTask = await Task.findByIdAndDelete(req.params.id);
+    if (!deletedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
 
-// Get All Tasks
+    const adminData = await Admin.findById(deletedTask.createdBy);
+    const adminName = adminData?.name || "Admin";
+
+    const io = req.app.get("io"); // ✅ Access socket.io instance
+    await sendNotification({
+      recipientId: deletedTask.assignedTo,
+      role: "employee",
+      title: "Task Deleted",
+      message: `${adminName} deleted your task "${deletedTask.taskTitle}".`,
+      senderName: adminName
+    }, io);
+
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting task:", error.message);
+    res.status(500).json({ message: "Server error while deleting task" });
+  }
+};
+
+
+
+
 const getTasks = async (req, res) => {
   try {
     const { assignedTo, companyId } = req.query;
@@ -66,7 +96,7 @@ const getTasks = async (req, res) => {
 };
 
 
-// Update Task
+// Update Task (already fixed in your provided code)
 const updateTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -75,25 +105,30 @@ const updateTask = async (req, res) => {
     }
 
     const previousStatus = task.status;
-    const previousTitle = task.taskTitle;
 
     const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
 
-    // Get employee name
     const employeeData = await Employee.findById(task.assignedTo);
     const employeeName = employeeData?.firstName || "Employee";
 
-    // If status updated, notify admin with employee name
+  
     if (req.body.status && req.body.status !== previousStatus) {
-      await sendNotification({
-        recipientId: task.createdBy,
-        role: "admin",
-        title: "Task Status Updated",
-        message: `${employeeName} updated task "${task.taskTitle}" to "${req.body.status}".`,
-      });
-    }
+  const io = req.app.get("io");
+  if (!io) {
+    console.error("Socket.IO instance is undefined in updateTask");
+    return;
+  }
+  console.log("Sending notification for task update:", { recipientId: task.createdBy });
+  await sendNotification({
+    recipientId: task.createdBy,
+    role: "admin",
+    title: "Task Status Updated",
+    message: `${employeeName} updated task "${task.taskTitle}" to "${req.body.status}".`,
+    senderName: employeeName
+  }, io);
+}
 
     res.status(200).json(updatedTask);
   } catch (error) {
@@ -102,38 +137,10 @@ const updateTask = async (req, res) => {
   }
 };
 
-
-// Delete Task
-const deleteTask = async (req, res) => {
-  try {
-    const deletedTask = await Task.findByIdAndDelete(req.params.id);
-    if (!deletedTask) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    // Get admin name
-    const adminData = await Admin.findById(deletedTask.createdBy);
-    const adminName = adminData?.name || "Admin";
-
-    // Notify employee
-    await sendNotification({
-      recipientId: deletedTask.assignedTo,
-      role: "employee",
-      title: "Task Deleted",
-      message: `${adminName} deleted your task "${deletedTask.taskTitle}".`,
-    });
-
-    res.status(200).json({ message: "Task deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting task:", error.message);
-    res.status(500).json({ message: "Server error while deleting task" });
-  }
-};
-
-
 module.exports = {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
 };
+
