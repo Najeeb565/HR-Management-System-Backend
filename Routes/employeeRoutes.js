@@ -7,7 +7,7 @@ const authenticate = require('../middleware/authMiddleware');
 
 
 // ✅ Get employee stats - PUT THIS ABOVE "/:id"
-router.get("/stats",  employeeController.getEmployeeStats);
+router.get("git /stats",  employeeController.getEmployeeStats);
 
 // ✅ Get all employees
 router.get("/", authenticate, employeeController.getAllEmployees);
