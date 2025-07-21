@@ -41,7 +41,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: '*',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'DELETE'],
   },
 });
 
@@ -83,6 +83,7 @@ app.use((err, req, res, next) => {
 
 // Socket setup
 socketSetup(io);
+app.set("io", io);   
 
 // Start Server
 const PORT = process.env.PORT || 5000;

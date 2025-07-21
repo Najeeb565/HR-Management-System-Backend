@@ -20,8 +20,10 @@ router.post("/", authenticate, (req, res, next) => {
 
 // ✅ Update employee
 router.put("/:id", authenticate,  employeeController.updateEmployee);
+router.put("/:id", authenticate,  employeeController.updateEmployee);
 
 // ✅ Delete employee
+router.delete("/:id", authenticate,  employeeController.deleteEmployee);
 router.delete("/:id", authenticate,  employeeController.deleteEmployee);
 
 // ✅ Get single employee by ID
