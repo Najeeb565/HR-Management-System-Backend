@@ -4,27 +4,27 @@ const router = express.Router();
 const employeeController = require('../Controller/employeeController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const authenticate = require('../middleware/authMiddleware');
-const authorizeRoles = require('../middleware/roleMiddleware');
+
 
 // ✅ Get employee stats - PUT THIS ABOVE "/:id"
-router.get("/stats", authenticate, authorizeRoles("admin"), employeeController.getEmployeeStats);
+router.get("/stats",  employeeController.getEmployeeStats);
 
 // ✅ Get all employees
-router.get("/", authenticate, authorizeRoles("admin"), employeeController.getAllEmployees);
+router.get("/", authenticate, employeeController.getAllEmployees);
 
 // ✅ Create employee
-router.post("/", authenticate, authorizeRoles("admin"), (req, res, next) => {
+router.post("/", authenticate, (req, res, next) => {
   console.log('POST /api/employees received!', req.body);
   employeeController.createEmployee(req, res, next);
 });
 
 // ✅ Update employee
-router.put("/:id", authenticate, authorizeRoles("admin"), employeeController.updateEmployee);
+router.put("/:id", authenticate,  employeeController.updateEmployee);
 
 // ✅ Delete employee
-router.delete("/:id", authenticate, authorizeRoles("admin"), employeeController.deleteEmployee);
+router.delete("/:id", authenticate,  employeeController.deleteEmployee);
 
 // ✅ Get single employee by ID
-router.get("/:id", authenticate, authorizeRoles("admin", "employee"), employeeController.getEmployeeById);
+router.get("/:id", authenticate,  employeeController.getEmployeeById);
 
 module.exports = router;

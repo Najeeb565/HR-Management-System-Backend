@@ -11,9 +11,9 @@ const authenticate = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
 // ✅ Admin-only: View Profile
-router.get('/profile/:email', authenticate, authorizeRoles("admin"), getAdminProfile);
+router.get('/profile/:email', authenticate, authorizeRoles("companyadmin"), getAdminProfile);
 
 // ✅ Admin-only: Update Profile
-router.put('/profile/:email' , upload.single("profilePic"), authenticate, authorizeRoles("admin"), updateAdminProfile);
+router.put('/profile/:email' , upload.single("profilePic"), authenticate, authorizeRoles("companyadmin"), updateAdminProfile);
 
 module.exports = router;
