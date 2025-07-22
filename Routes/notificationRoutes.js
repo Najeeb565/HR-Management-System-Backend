@@ -4,8 +4,6 @@ const express = require("express");
 const router = express.Router();
 const Notification = require("../Model/Notification"); // Update to match exact file name
 
-console.log("notificationRoutes.js loaded"); // Debug log
-
 router.get("/:id", async (req, res) => {
   try {
     const notifications = await Notification.find({
