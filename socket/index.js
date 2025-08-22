@@ -5,7 +5,7 @@ module.exports = (io) => {
     console.log("User connected:", socket.id);
 
     // ✅ Join company room (for global chat)
-    socket.on("joinCompanyRoom", (companyId) => {z
+    socket.on("joinCompanyRoom", (companyId) => {
       socket.join(companyId);
       console.log(`User joined room: ${companyId}`);
     });

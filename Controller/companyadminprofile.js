@@ -31,6 +31,11 @@ const updateAdminProfile = async (req, res) => {
       updateData,
       { new: true }
     );
+    if (updateData.birthday === "null" || updateData.birthday === "") {
+  updateData.birthday = null;
+} else if (updateData.birthday) {
+  updateData.birthday = new Date(updateData.birthday);
+}
 
     if (!updated) return res.status(404).json({ message: "Admin not found" });
     res.json(updated);
