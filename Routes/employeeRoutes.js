@@ -1,32 +1,29 @@
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const employeeController = require('../Controller/employeeController');
-const { verifyToken } = require('../middleware/authMiddleware');
-const authenticate = require('../middleware/authMiddleware');
+const employeeController = require("../Controller/employeeController");
+const authenticate = require("../middleware/authMiddleware");
 
+// ✅ Specific routes always come before generic (like "/:id")
 
-// ✅ Get employee stats - PUT THIS ABOVE "/:id"
-router.get("git /stats",  employeeController.getEmployeeStats);
+// Get employee stats
+router.get("/stats", authenticate, employeeController.getEmployeeStats);
 
-// ✅ Get all employees
+// Get all employees
 router.get("/", authenticate, employeeController.getAllEmployees);
 
-// ✅ Create employee
+// Create employee
 router.post("/", authenticate, (req, res, next) => {
-  console.log('POST /api/employees received!', req.body);
+  console.log("POST /api/employees received!", req.body);
   employeeController.createEmployee(req, res, next);
 });
 
-// ✅ Update employee
-router.put("/:id", authenticate,  employeeController.updateEmployee);
-router.put("/:id", authenticate,  employeeController.updateEmployee);
+// Update employee
+router.put("/:id", authenticate, employeeController.updateEmployee);
 
-// ✅ Delete employee
-router.delete("/:id", authenticate,  employeeController.deleteEmployee);
-router.delete("/:id", authenticate,  employeeController.deleteEmployee);
+// Delete employee
+router.delete("/:id", authenticate, employeeController.deleteEmployee);
 
-// ✅ Get single employee by ID
-router.get("/:id", authenticate,  employeeController.getEmployeeById);
+// Get single employee by ID
+router.get("/:id", authenticate, employeeController.getEmployeeById);
 
 module.exports = router;

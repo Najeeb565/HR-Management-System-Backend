@@ -19,7 +19,7 @@ const adminSchema = new mongoose.Schema({
   },
 
   // 👇 Add these
-    birthday: { type: Date },
+    dateOfBirth: { type: Date },
   hireDate: Date,
   salary: Number,
 

@@ -11,7 +11,7 @@ const authenticate = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
 // Employee profile routes
-router.get('/:email',authenticate, authorizeRoles("admin", "employee", "hr"), getEmployeeProfile);
-router.put('/:email',authenticate, authorizeRoles("admin", "employee", "hr"), upload.single("profilePicture"), updateEmployeeProfile);
+router.get('/:email',authenticate, authorizeRoles("companyadmin", "employee", "hr"), getEmployeeProfile);
+router.put('/:email',authenticate, authorizeRoles("companyadmin", "employee", "hr"), upload.single("profilePicture"), updateEmployeeProfile);
 
 module.exports = router;
